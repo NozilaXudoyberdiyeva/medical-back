@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model patient {
+  id         String    @id @unique @default(cuid())
+  full_name  String
+  complaint  String
+  tel_number Int
+  username   String    @unique
+  password   String
+  doctor     doctor[]
+  retsept    retsept[]
+  analyze    analyze[]
+}
+
+model doctor {
+  id               String         @id @unique @default(cuid())
+  full_name        String
+  tel_number       Int
+  username         String         @unique
+  password         String
+  specialization   specialization @relation(fields: [specializationId], references: [id])
+  patient          patient[]
+  specializationId String
+  retsept          retsept[]
+  analyze          analyze[]
+}
+
+model specialization {
+  id     String   @id @unique @default(cuid())
+  title  String   @unique
+  doctor doctor[]
+}
+
+model admin {
+  id         String @id @unique @default(cuid())
+  full_name  String
+  tel_number Int
+  username   String @unique
+  password   String
+}
+
+model retsept {
+  id           String  @id @unique @default(cuid())
+  dori         String
+  necha_mahal  Int
+  davomiylik   Int
+  ichish_vaqti String
+  patient      patient @relation(fields: [patientId], references: [id])
+  doctor       doctor  @relation(fields: [doctorId], references: [id])
+  patientId    String
+  doctorId     String
+  nima_uchun   String
+}
+
+model analyze {
+  id        String  @id @unique @default(cuid())
+  type      String
+  result    String
+  doctor    doctor  @relation(fields: [doctorId], references: [id])
+  patient   patient @relation(fields: [patientId], references: [id])
+  doctorId  String
+  patientId String
+}
